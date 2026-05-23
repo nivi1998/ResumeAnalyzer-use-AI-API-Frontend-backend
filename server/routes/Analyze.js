@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { analyzeResume } from "../controllers/analyzeController.js";
+import { analyzeResume } from "../controllers/AnalyzeController";
 
 const router = express.Router();
 
