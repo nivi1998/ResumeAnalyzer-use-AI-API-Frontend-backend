@@ -3,8 +3,11 @@ export const analyzeResume = async (file, jobDescription) => {
   formData.append("resume", file);
   formData.append("jobDescription", jobDescription);
 
-  const res = await fetch("http://localhost:5000/api/analyze", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/analyze`, {
     method: "POST",
+     headers: {
+      "Content-Type": "application/json",
+    },
     body: formData
   });
 
@@ -28,3 +31,14 @@ export const analyzeResume = async (file, jobDescription) => {
 
 //   return res.json();
 // };
+
+//   const response = await fetch(
+//   `${import.meta.env.VITE_API_URL}/api/analyze`,
+//   {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(data),
+//   }
+// );
