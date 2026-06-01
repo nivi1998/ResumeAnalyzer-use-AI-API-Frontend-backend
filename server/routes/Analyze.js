@@ -4,14 +4,17 @@ import { analyzeResume } from "../controllers/AnalyzeController.js";
 
 const router = express.Router();
 
-const upload = multer({ dest: "uploads/" });
+// const upload = multer({ dest: "uploads/" });
+
+const upload = multer({
+  storage: multer.memoryStorage()
+});
 
 router.post("/analyze",
      upload.single("resume"),
       analyzeResume);
 
 export default router;
-
 
 
 
