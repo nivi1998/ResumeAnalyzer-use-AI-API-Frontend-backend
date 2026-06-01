@@ -1,4 +1,3 @@
-import fs from "fs";
 import fetch from "node-fetch";
 import { createRequire } from "module";
 
@@ -24,17 +23,21 @@ export const analyzeResume = async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const filePath = req.file.path;
+    // const filePath = req.file.path;
     const jobDescription = req.body.jobDescription || "";
 
     console.log("JOB DESC:", jobDescription);
 
     // ✅ Read PDF
-    const dataBuffer = fs.readFileSync(filePath);
+     const dataBuffer = req.file.buffer;
+    // const dataBuffer = fs.readFileSync(filePath);
     const pdfData = await pdfParse(dataBuffer);
     const resumeText = pdfData.text;
-
+   
     console.log("📄 TEXT:", resumeText.slice(0, 100));
+
+console.log("File received:", !!req.file);
+console.log("Buffer size:", req.file?.buffer?.length);
 
     // ✅ AI API Call
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -51,24 +54,23 @@ export const analyzeResume = async (req, res) => {
           {
             role: "user",
             content: `
-Analyze resume vs job description.
+          Analyze resume vs job description.
+          Return ONLY JSON:
+        {
+          "suggestions": "text"
+        }
+        Resume:
+          ${resumeText}
 
-Return ONLY JSON:
-
-{
-  "suggestions": "text"
-}
-
-Resume:
-${resumeText}
-
-Job Description:
-${jobDescription}
+        Job Description:
+          ${jobDescription}
 `
           }
         ]
       })
     });
+
+    console.log("OpenRouter status:", response.status);
 
     const data = await response.json();
     console.log("🤖 AI RESPONSE:", data);
@@ -85,7 +87,7 @@ ${jobDescription}
       }
     }
 
-    // ✅ ATS LOGIC (NOW CORRECTLY PLACED)
+    // ✅ ATS LOGIC 
     const resumeSkills = extractSkills(resumeText);
     const jobSkills = extractSkills(jobDescription);
 
@@ -119,7 +121,7 @@ ${jobDescription}
     );
 
     // ✅ Clean up file
-    fs.unlinkSync(filePath);
+    // fs.unlinkSync(filePath);
 
     // ✅ Final response
     res.json({
